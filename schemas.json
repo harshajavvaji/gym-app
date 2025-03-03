@@ -1,0 +1,63 @@
+// Branches-Git
+// Harsha - harshaDev1
+// Sahana -sahanaDev1
+
+// userSchema
+{
+    "id": "",
+    "Name": "",
+    "role":"", // Admin/user
+    "age":"",
+    "phoneNo":"",
+    "email":"",
+    "password":"",
+    "activeSubscriptionId":"",
+    "upcomingSubscriptionId":"",
+    "status":"",
+    "branch":"",
+    "metdata":{
+        "updatedDate":""
+        
+    }
+}
+
+// API:USERS
+// CREATE: POST --> User,Admin --> Harsha
+// UPDATE: PUT/PATCH --> User,Admin
+// DELETE: DELETE -->User,Admin --> Harsha
+// GET, GET all: GET --> GET -->user, Admin  & GET all --> Admin --> Sahana
+
+
+// customerSubscriptionSchema
+{
+    "id":"",
+    "subscriptionId":"", //subscriptionSchema Id
+    "status":"",
+    "customerId":"", //userSchema Id
+    "expiryDate":"",
+    "metdata":{
+        "updatedDate":""
+    }
+}
+
+//API: customerSubscriptionSchema
+// CREATE: POST --> Only Admin (bcoz Payment not integrated)
+// UPDATE: PUT/PATCH --> Only Admin
+// DELETE: DELETE --> Only Admin
+// GET, GET all for a customer --> Both, GET & GET all for all customers --> Admin
+
+// subscriptionSchema
+{
+    "id":"",
+    "name":"",
+    "type":"Subscription",
+    "amount":"",
+    "validity":"", //3m/4m
+    "isActive":"" //--> for Offer visibility, for 
+}
+
+// API:Subscriptions --> Only Admin
+// CREATE: POST --> Sahana
+// UPDATE: PUT/PATCH --> Harsha
+// DELETE: DELETE //--> Only when no active customerSubscription record has this as subscriptionId -->Harsha
+// GET, GET all : GET --> Sahana
