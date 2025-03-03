@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
+require('dotenv').config()
 
 const app = express();
 const port = 3000;
@@ -15,11 +16,13 @@ app.get('/', (req, res) => {
     return res.send("Hello world connected to dynamodb");
 })
 
+console.log(process.env.SECRETACCESSKEY)
+
 // Configure AWS SDK
 AWS.config.update({
   region: 'eu-north-1', // Replace with your region
-  accessKeyId: 'AKIAVKALJA526H32LNOG', // Replace with your access key ID
-  secretAccessKey: 'XFh4h1D5oiCtiM8CHG6lzaYCy5GRA23HafkwE23n' // Replace with your secret access key
+  accessKeyId: process.env.ACCESSKEYID, // Replace with your access key ID
+  secretAccessKey: process.env.SECRETACCESSKEY // Replace with your secret access key
 });
 
 
