@@ -20,7 +20,7 @@ console.log(process.env.SECRETACCESSKEY)
 
 // Configure AWS SDK
 AWS.config.update({
-  region: 'eu-north-1', // Replace with your region
+  region: process.env.REGION, // Replace with your region
   accessKeyId: process.env.ACCESSKEYID, // Replace with your access key ID
   secretAccessKey: process.env.SECRETACCESSKEY // Replace with your secret access key
 });
