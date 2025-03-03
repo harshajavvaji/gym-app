@@ -1,0 +1,48 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn.lock
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# AWS Credentials & Config
+.aws/
+*.pem
+*.cer
+
+# Logs & Temporary Files
+logs/
+*.log
+log/
+*.log.*
+debug.log
+error.log
+
+# Ignore AWS CDK, SAM, and Terraform files
+.cdk.out/
+cdk.context.json
+terraform.tfstate
+terraform.tfstate.backup
+.sam/
+.vscode/
+
+# DynamoDB Local files
+.dynamodb/
+.dynamodb-local/
+
+# Ignore Build Files
+build/
+dist/
+.next/
+out/
+
+# Editor & System-Specific Files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+Thumbs.db
