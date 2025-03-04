@@ -41,6 +41,7 @@ const updateSubscription = async (req, res) => {
 }
 
 const getSubscription = async (req, res) => {
+
     const { id } = req.params
     console.log(id)
     const params = {
