@@ -41,6 +41,7 @@ const updateSubscription = async (req, res) => {
 }
 
 const getSubscription = async (req, res) => {
+
     const { id } = req.params
     console.log(id)
     const params = {
@@ -60,7 +61,20 @@ const getSubscription = async (req, res) => {
 }
 
 const getSubscriptions = async (req, res) => {
-    res.status(200).send("Fetched Subscriptions Successfully")
+
+    const { nextBookmark } = req.query
+    const params = {
+        TableName: process.env.SUBSCRIPTIONTABLENAME,
+        Limit: 10, //kept 10 as default value.
+        ExclusiveStartKey: nextBookmark ? { id: nextBookmark } : null //Expected format for nextBookmark is {id: "44a57314-f9a2-4920-86bc-1cf8010d7fee"}
+    }
+    try {
+        const data = await dynamoDB.scan(params).promise()
+        res.status(200).json({ message: "Fetched Subscriptions Successfully", data })
+    }
+    catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error })
+    }
 }
 
 const deleteSubscription = async (req, res) => {
