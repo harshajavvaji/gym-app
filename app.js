@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
     return res.send("Hello world connected to GymApplication, Developed by Harsha & Sahana");
 })
 
-app.use("/api/customers", require("./routes/customerRoute"));
+// app.use("/api/customers", require("./routes/customerRoute"));
 app.use("/api/subscriptions", require("./routes/subscriptionRoute"));
 
 app.listen(port, () => {
