@@ -76,10 +76,10 @@ const register = async (req, res) => {
             const hashedPassword = await bcrypt.hash(customer.password, salt);
 
             customer.password = hashedPassword;
-
+            const token = jwt.sign({Id: customer.id, role: customer.role},process.env.KEY)
             const data = await dynamoDB.put(params).promise()
 
-            res.status(201).json({message: "User created successfully", customer});
+            res.status(201).json({message: "User created successfully", customer, token});
         } catch (error) {
             res.status(500).json({message: "Internal server error", error})
         }
