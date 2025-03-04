@@ -27,12 +27,12 @@ const addSubscription = async (req, res) => {
         TableName: process.env.SUBSCRIPTIONTABLENAME,
         Item: subscription
     };
-    
+
     try {
         const data = await dynamoDB.put(params).promise();
-        res.status(201).json({message: "Subscription Created Successfully", subscription})
+        res.status(201).json({ message: "Subscription Created Successfully", subscription })
     } catch (err) {
-        res.status(500).json({message:"Internal Server Error",error})
+        res.status(500).json({ message: "Internal Server Error", error })
     }
 }
 
@@ -41,7 +41,6 @@ const updateSubscription = async (req, res) => {
 }
 
 const getSubscription = async (req, res) => {
-
     const { id } = req.params
     console.log(id)
     const params = {
