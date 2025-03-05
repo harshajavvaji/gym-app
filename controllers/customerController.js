@@ -122,11 +122,11 @@ const getCustomers = async (req, res) => {
 }
 
 const deleteCustomer = async (req, res) => {
-    res.status(204).json()
+    return res.status(204).json()
 }
 
 const updateCustomer = async (req, res) => {
-    res.status(200).json("Updated customer successfully")
+    return res.status(200).json("Updated customer successfully")
 }
 
 module.exports = { register, getCustomer, getCustomers, deleteCustomer, updateCustomer }
