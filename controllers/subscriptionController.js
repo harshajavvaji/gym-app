@@ -30,9 +30,9 @@ const addSubscription = async (req, res) => {
 
     try {
         const data = await dynamoDB.put(params).promise();
-        res.status(201).json({ message: "Subscription Created Successfully", subscription })
+        return res.status(201).json({ message: "Subscription Created Successfully", subscription })
     } catch (err) {
-        res.status(500).json({ message: "Internal Server Error", error })
+        return res.status(500).json({ message: "Internal Server Error", error })
     }
 }
 
@@ -43,7 +43,6 @@ const updateSubscription = async (req, res) => {
 const getSubscription = async (req, res) => {
 
     const { id } = req.params
-    console.log(id)
     const params = {
         TableName: process.env.SUBSCRIPTIONTABLENAME,
         Key: { id }
@@ -51,12 +50,12 @@ const getSubscription = async (req, res) => {
 
     try {
         const subscription = await dynamoDB.get(params).promise()
-        // if(Object.keys(subscription).length==0){
-        //     res.status(404).json({message: `Resource ${id} not found`})
-        // }
-        res.status(200).json({ subscription })
+        if(Object.keys(subscription).length==0){
+            return res.status(404).json({message: `Resource ${id} not found`})
+        }
+        return res.status(200).json(subscription.Item)
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" })
+        return res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
@@ -70,10 +69,10 @@ const getSubscriptions = async (req, res) => {
     }
     try {
         const data = await dynamoDB.scan(params).promise()
-        res.status(200).json({ message: "Fetched Subscriptions Successfully", data })
+        return res.status(200).json({ message: "Fetched Subscriptions Successfully", subscriptions: data.Items })
     }
     catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error })
+        return res.status(500).json({ message: "Internal Server Error", error })
     }
 }
 
