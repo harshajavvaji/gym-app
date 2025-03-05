@@ -26,10 +26,11 @@ async function checkEmailExists(email) {
     }
     try {
         const result = await dynamoDB.query(params).promise();
-        return result.Items.length > 0;
+        console.log(result)
+        return {count : result.Count, Items : result.Items};
     } catch (error) {
         console.error('Error checking email:', error);
-        return false;
+        res.status(500).json({message: "Internal server error"})
     }
 }
 
@@ -66,12 +67,10 @@ const register = async (req, res) => {
         }
 
         try {
-            checkEmailExists(customer.email).then(exists => {
-                if(exists){
-                    res.status(400).json({message: 'Email already exists'})
-                } 
-            });
-            
+            const user = checkEmailExists(customer.email)
+            if(user.count > 0){
+                return res.status(400).json({message: 'Email already exists'})
+            }
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(customer.password, salt);
 
@@ -79,10 +78,44 @@ const register = async (req, res) => {
             const token = jwt.sign({Id: customer.id, role: customer.role},process.env.KEY)
             const data = await dynamoDB.put(params).promise()
 
-            res.status(201).json({message: "User created successfully", customer, token});
+            return res.status(201).json({message: "User created successfully", customer, token});
         } catch (error) {
-            res.status(500).json({message: "Internal server error", error})
+            return res.status(500).json({message: "Internal server error1", error})
         }
 }
 
-module.exports = { register }
+async function getUserRecord(id) {
+    const params = {
+        TableName: process.env.CUSTOMERTABLENAME,
+        Key: { id : id }
+    }
+
+    try {
+        const userRecord = await dynamoDB.get(params).promise()
+        return userRecord
+    } catch (error) {
+        return false
+    }
+}
+
+const login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await checkEmailExists(email)
+        if(user.count == 0){
+            res.status(400).json({message: "Email does not exist, Register and try"})
+        }
+        const userRecord =  await getUserRecord(user.Items[0].id)
+        const status = await bcrypt.compare(password, userRecord.Item.password)
+        if(!status){
+            res.status(400).json({message: "Invalid credentials"})
+        }
+        const token = jwt.sign({ Id: userRecord.Item.id, role: userRecord.Item.role}, process.env.KEY)
+        res.status(200).json({message: "Logged in successfully", userRecord, token})
+    } catch (error) {
+        res.status(500).json({message: "Internal server error", error})
+    }
+}
+
+module.exports = { register , login}
