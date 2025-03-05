@@ -1,0 +1,43 @@
+const jwt = require('jsonwebtoken')
+const { Customer } = require('../schemas/schemas')
+const { DynamoDB } = require('aws-sdk')
+const AWS = require('aws-sdk');
+// Configure AWS SDK
+AWS.config.update({
+  region: process.env.REGION, // Replace with your region
+  accessKeyId: process.env.ACCESSKEYID, // Replace with your access key ID
+  secretAccessKey: process.env.SECRETACCESSKEY // Replace with your secret access key
+});
+
+const dynamoDB = new AWS.DynamoDB.DocumentClient();
+
+const key = process.env.KEY
+
+
+const checkCustomer = async (req, res, next ) => {
+    const token = req.header('token')
+    if(!token){
+        res.status(400).json({message: 'Token not found'})
+    }
+    const customer = jwt.verify(token, key)
+    if(!customer){
+        res.status(400).json({message: 'Customer data not retained'})
+    }
+    const params = {
+        TableName: process.env.CUSTOMERTABLENAME,
+        Key: { id: id}
+    }
+    try {
+        const data = await dynamoDB.get(params).promise()
+        if(!data.Item){
+            throw new Error("Item not found");
+        }
+        req.customer = data;
+        console.log(req.customer)
+        next();
+    } catch (error) {
+        console.error("Error fetching item:", error.message);
+    }
+} 
+
+module.exports = checkCustomer;

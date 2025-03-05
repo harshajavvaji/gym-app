@@ -17,7 +17,7 @@ class Customer{
 }
 
 
-class Subscriptions{
+class Subscription{
     id
     name
     type
@@ -27,4 +27,4 @@ class Subscriptions{
 }
 
 
-module.exports ={Subscriptions,Customer}
+module.exports ={Subscription,Customer}
