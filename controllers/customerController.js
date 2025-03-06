@@ -26,7 +26,6 @@ async function checkEmailExists(email) {
     }
     try {
         const result = await dynamoDB.query(params).promise();
-        console.log(result)
         return {count : result.Count, Items : result.Items};
     } catch (error) {
         console.error('Error checking email:', error);
@@ -45,7 +44,6 @@ async function checkIdExists(id) {
     }
     try {
         const result = await dynamoDB.query(params).promise();
-        console.log(result)
         return {count : result.Count, Items : result.Items};
     } catch (error) {
         console.error('Error checking ID:', error);
@@ -148,7 +146,6 @@ const deleteCustomer = async(req, res) => {
     }
     try {
         const user = await checkIdExists(id);
-        console.log(user, "thghwgikhebumj")
         if(user.count == 0){
             res.status(400).json({message: "Customer doesnot exist"})
         }
