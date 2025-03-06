@@ -34,6 +34,25 @@ async function checkEmailExists(email) {
     }
 }
 
+
+async function checkIdExists(id) {
+    const params = {
+        TableName: process.env.CUSTOMERTABLENAME,
+        KeyConditionExpression: 'id =:id',
+        ExpressionAttributeValues: {
+            ':id' : id
+        }
+    }
+    try {
+        const result = await dynamoDB.query(params).promise();
+        console.log(result)
+        return {count : result.Count, Items : result.Items};
+    } catch (error) {
+        console.error('Error checking ID:', error);
+        res.status(500).json({message: "Internal server error"})
+    }
+}
+
 const register = async (req, res) => {
         const { 
                 name, 
@@ -118,4 +137,27 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { register , login}
+
+const deleteCustomer = async(req, res) => {
+    const {id} = req.params;
+    const params = {
+        TableName: process.env.CUSTOMERTABLENAME,
+        Key: {
+            id: id
+        },
+    }
+    try {
+        const user = await checkIdExists(id);
+        console.log(user, "thghwgikhebumj")
+        if(user.count == 0){
+            res.status(400).json({message: "Customer doesnot exist"})
+        }
+        // Deletes an entry from customer table with primary key as Id
+        await dynamoDB.delete(params).promise()
+        res.status(200).json({message: "Customer deleted"})
+    } catch (error) {
+        res.status(400).json({message: "Unable to delete Customer entry", error})
+    }
+}
+
+module.exports = { register , login, deleteCustomer}
