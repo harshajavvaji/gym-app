@@ -161,10 +161,53 @@ const deleteCustomer = async (req, res) => {
     }
     // Deletes an entry from customer table with primary key as Id
     await dynamoDB.delete(params).promise();
-    return res.status(204);
+    return res.status(204).json()
+    // return res.status(204);
   } catch (error) {
     return res.status(500).json({ message: "Unable to delete Customer entry", error });
   }
 };
 
-module.exports = { register, login, deleteCustomer };
+const updateCustomer = async (req, res) => {
+  return res.status(200).json("Updated customer successfully")
+}
+
+const getCustomer = async (req, res) => {
+
+  const { id } = req.params
+  const params = {
+      TableName: process.env.CUSTOMERTABLENAME,
+      Key: { id }
+  }
+
+  try {
+      const customer = await dynamoDB.get(params).promise()
+      if (Object.keys(customer).length == 0) {
+          return res.status(404).json({ message: `Resource ${id} not found` })
+      }
+      return res.status(200).json(customer.Item)
+  } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error" })
+  }
+}
+
+const getCustomers = async (req, res) => {
+  
+  const { nextBookmark } = req.query
+  const params = {
+      TableName: process.env.CUSTOMERTABLENAME,
+      Limit: 10, //kept 10 as default value.
+      ExclusiveStartKey: nextBookmark ? { id: nextBookmark } : null //Expected format for nextBookmark is {id: "44a57314-f9a2-4920-86bc-1cf8010d7fee"}
+  }
+  try {
+      const data = await dynamoDB.scan(params).promise()
+      return res.status(200).json({ message: "Fetched Customers Successfully", customers: data.Items })
+  }
+  catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error })
+  }
+}
+
+module.exports = { register, login, deleteCustomer, getCustomers, getCustomer, updateCustomer };
+
+
