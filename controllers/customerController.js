@@ -83,7 +83,7 @@ const register = async (req, res) => {
   };
 
   try {
-    const user = checkEmailExists(customer.email);
+    const user = await checkEmailExists(customer.email);
     if (user.count > 0) {
       return res.status(400).json({ message: "Email already exists" });
     }
