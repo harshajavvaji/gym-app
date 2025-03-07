@@ -17,11 +17,11 @@ const key = process.env.KEY
 const checkCustomer = async (req, res, next ) => {
     const token = req.header('token')
     if(!token){
-        res.status(400).json({message: 'Token not found'})
+        return res.status(400).json({message: 'Token not found'})
     }
     const customer = jwt.verify(token, key)
     if(!customer){
-        res.status(400).json({message: 'Customer data not retained'})
+        return res.status(400).json({message: 'Customer data not retained'})
     }
     const params = {
         TableName: process.env.CUSTOMERTABLENAME,
@@ -37,6 +37,7 @@ const checkCustomer = async (req, res, next ) => {
         next();
     } catch (error) {
         console.error("Error fetching item:", error.message);
+        return res.status(500).json({message: "Not authorized"})
     }
 } 
 
