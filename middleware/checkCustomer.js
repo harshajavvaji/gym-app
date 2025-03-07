@@ -41,7 +41,7 @@ const verifyToken = async (req, res, next) => {
     }
 }
 
-const verifyAdmin = async () => {
+const verifyAdmin = async (req,res,next) => {
     try {
         verifyToken(req, res, () => {
             if (req.customer.role == "Admin") {
