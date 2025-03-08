@@ -15,45 +15,60 @@ const key = process.env.KEY
 
 
 const verifyToken = async (req, res, next) => {
-    const token = req.header('token')
-    if (!token) {
-        return res.status(400).json({ message: 'Token not found' })
-    }
-    const data = jwt.verify(token, key)
-    if (!data) {
-        return res.status(400).json({ message: 'Customer data not retained' })
-    }
-    const params = {
-        TableName: process.env.CUSTOMERTABLENAME,
-        Key: { id: data.id }
-    }
     try {
+        const token = req.header('token')
+        if (!token) {
+            return res.status(400).json({ message: 'Token not found' })
+        }
+        const data = jwt.verify(token, key)
+        if (!data) {
+            return res.status(400).json({ message: 'Customer data not retained' })
+        }
+        const params = {
+            TableName: process.env.CUSTOMERTABLENAME,
+            Key: { id: data.id }
+        }
+
         const customer = await dynamoDB.get(params).promise()
         if (!customer.Item) {
             throw new Error("Item not found");
         }
-        req.customer = customer;
-        console.log(req.customer)
+        req.customer = customer.Item;
         next();
     } catch (error) {
         console.error("Error fetching item:", error.message);
-        return res.status(500).json({ message: "Not authorized" })
+        return res.status(401).json({ message: "Not Authenticated" })
     }
 }
 
-const verifyAdmin = async (req,res,next) => {
+const verifyCustomer = async (req, res, next) => {
+    try {
+        verifyToken(req, res, () => {
+            if (req.customer.id == req.params.id) {
+                next();
+            }
+            else {
+                return res.status(403).json({ message: "Not Authorized to perform this action." })
+            }
+        })
+    } catch (error) {
+        return res.status(403).json({ message: "Not Authorized to perform this action." })
+    }
+}
+
+const verifyAdmin = async (req, res, next) => {
     try {
         verifyToken(req, res, () => {
             if (req.customer.role == "Admin") {
                 next()
             }
             else {
-                return res.status(402).json({ message: "Not Authorized to perform this action." })
+                return res.status(403).json({ message: "Not Authorized to perform this action." })
             }
         })
     } catch (error) {
-        return res.status(402).json({ message: "Not Authorized to perform this action." })
+        return res.status(403).json({ message: "Not Authorized to perform this action." })
     }
 }
 
-module.exports = { verifyToken, verifyAdmin };
+module.exports = { verifyToken, verifyAdmin, verifyCustomer };

@@ -4,14 +4,14 @@
 
 // userSchema
 {
-    "id": "",
+    "id": "", // Cant be updated 
     "Name": "",
     "role":"", // Admin/user
     "age":"",
-    "phoneNo":"",
+    "phoneNo":"", 
     "email":"",
     "password":"",
-    "activeSubscriptionId":"",
+    "activeSubscriptionId":"", 
     "upcomingSubscriptionId":"",
     "status":"",
     "branch":"",
