@@ -1,6 +1,6 @@
 const express = require("express")
 const { getAllCustomerSubscription, getCustomerSubscription, deleteCustomerSubscription, updateCustomerSubscription, getAllCustomerSubscriptionforCustomer, addCustomerSubscription } = require("../controllers/customerSubscriptionController")
-const { deleteSubscription } = require("../controllers/subscriptionController")
+// const { deleteCustomerSubscription } = require("../controllers/subscriptionController")
 const { verifyAdmin, verifyToken, verifyPermission } = require("../middleware/checkCustomer")
 
 const router = express.Router()
@@ -10,7 +10,7 @@ router.put('/:id', verifyAdmin, updateCustomerSubscription)
 router.get('/:id', verifyToken, getCustomerSubscription)
 router.get('/customer/:custId', verifyPermission, getAllCustomerSubscriptionforCustomer) // This can be for customer/Admin
 router.get('/', verifyAdmin, getAllCustomerSubscription)
-router.delete('/:id', verifyAdmin, deleteSubscription)
+router.delete('/:id', verifyAdmin, deleteCustomerSubscription)
 
 module.exports = router
 

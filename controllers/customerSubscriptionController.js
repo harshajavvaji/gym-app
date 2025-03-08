@@ -19,20 +19,83 @@ const updateCustomerSubscription = async (req, res) => {
 }
 const getCustomerSubscription = async (req, res) => {
     try {
-        return res.status(200).json({ message: "CustomerSubscription fetched Successfully" })
+        const { id } = req.params;
+        const params = {
+            TableName: process.env.CUSTOMERSUBSCRIPTIONTABLENAME,
+            Key : {
+                id
+            }
+        }
+        const customerSubscription = await dynamoDB.get(params).promise();
+        if(Object.keys(customerSubscription).length == 0){
+            return res.status(404).json({message: "No entry found"})
+        }
+        if(req.customer.id !== customerSubscription.customerId && req.customer.role !== "Admin"){
+            return res.status(403).json({message: "Not allowed to perform this action"})
+        }else{
+            return res.status(200).json({ message: "CustomerSubscription fetched Successfully", customerSubscription})
+        }
     } catch (error) {
         return res.status(500).json({message: "Internal server error"})
     }
 }
 const getAllCustomerSubscription = async (req, res) => {
-    return res.status(201).json({ message: "CustomerSubscriptions fetched for all customers Successfully" })
+    const { nextBookmark } = req.query;
+    const params = {
+         TableName: process.env.CUSTOMERSUBSCRIPTIONTABLENAME,
+         Limit: 1,
+         ExclusiveStartKey : nextBookmark ? { id : nextBookmark}: null
+    }
+    try {
+        const customerSubscriptions = await dynamoDB.scan(params).promise();
+        if(Object.keys(customerSubscriptions).length == 0){
+            return  res.status(404).json({message: "No entries found"})
+        }
+        return res.status(201).json({ message: "CustomerSubscriptions fetched for all customers Successfully", customerSubscriptions })
+    } catch (error) {
+        return res.status(500).json({message: "Internal server error"})
+    }
 }
 const deleteCustomerSubscription = async (req, res) => {
-    return res.status(204).json({ message: "CustomerSubscription deleted Successfully" })
+    const { id } = req.params;
+    const params = {
+        TableName : process.env.CUSTOMERSUBSCRIPTIONTABLENAME,
+        Key : {
+            id
+        }
+    }
+    try {
+        const customerSubscriptions = await dynamoDB.get(params).promise()
+        console.log(customerSubscriptions)
+        if(Object.keys(customerSubscriptions).length == 0){
+            return res.status(404).json({message: `Resource ${id} not found`})
+        }
+        await dynamoDB.delete(params).promise();
+        return res.status(204).json({ message: "CustomerSubscription deleted Successfully" })
+    } catch (error) {
+        
+    }
 }
 
 const getAllCustomerSubscriptionforCustomer = async (req, res) => {
-    return res.status(200).json({ message: "CustomerSubscriptions fetched for a customer  Successfully" })
+    const { custId } = req.params;
+    const params = {
+        TableName : process.env.CUSTOMERSUBSCRIPTIONTABLENAME,
+        IndexName: "customerId-index",
+        KeyConditionExpression: "customerId =:customerId",
+        ExpressionAttributeValues: {
+            ":customerId": custId,
+        }
+    }
+    try {
+        const customerSpecificSubscriptions = await dynamoDB.query(params).promise()
+        if(Object.keys(customerSpecificSubscriptions).length == 0){
+            return res.status(404).json({message: "No entries found"})
+        }
+        return res.status(200).json({ message: "CustomerSubscriptions fetched for a customer  Successfully", customerSpecificSubscriptions})   
+    } catch (error) {
+        return res.status(500).json({message: "Internal server error", error})
+    }
 }
 
 module.exports = { updateCustomerSubscription, getAllCustomerSubscription, getCustomerSubscription, addCustomerSubscription, deleteCustomerSubscription, getAllCustomerSubscriptionforCustomer }
