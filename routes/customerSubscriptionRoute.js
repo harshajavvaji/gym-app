@@ -5,12 +5,12 @@ const { verifyAdmin } = require("../middleware/checkCustomer")
 
 const router = express.Router()
 
-route.post('/', verifyAdmin, addCustomerSubscription)
-route.put('/:id', verifyAdmin, updateCustomerSubscription)
-route.get('/:id', getCustomerSubscription)
-route.get('/:custId', getAllCustomerSubscriptionforCustomer)
-route.get('/', getAllCustomerSubscription)
-route.delete('/:id', deleteSubscription)
+router.post('/', verifyAdmin, addCustomerSubscription)
+router.put('/:id', verifyAdmin, updateCustomerSubscription)
+router.get('/:id', getCustomerSubscription)
+router.get('/customer/:custId', getAllCustomerSubscriptionforCustomer)
+router.get('/', getAllCustomerSubscription)
+router.delete('/:id', deleteSubscription)
 
 module.exports = router
 

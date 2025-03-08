@@ -34,4 +34,4 @@ class CustomerSubscription{
     expiryDate // would be null if status is inactive
 }
 
-module.exports ={Subscription,Customer}
+module.exports ={Subscription, Customer, CustomerSubscription}
