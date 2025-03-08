@@ -110,7 +110,7 @@ const getSubscriptions = async (req, res) => {
     }
     try {
         const data = await dynamoDB.scan(params).promise()
-        return res.status(200).json({ message: "Fetched Subscriptions Successfully", subscriptions: data.Items })
+        return res.status(200).json({ message: "Fetched Subscriptions Successfully", subscriptions: data })
     }
     catch (error) {
         return res.status(500).json({ message: "Internal Server Error", error })
