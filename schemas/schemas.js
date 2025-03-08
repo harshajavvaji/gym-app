@@ -9,7 +9,7 @@ class Customer{
     password;
     activeSubscriptionId;
     upcomingSubscriptionId;
-    status;
+    status; //Same as the customerSubscription status
     branch;
     // metdata = {
     //     updatedDate
@@ -26,5 +26,12 @@ class Subscription{
     isActive
 }
 
+class CustomerSubscription{
+    id
+    subscriptionId
+    status // active/inactive/expired
+    customerId 
+    expiryDate // would be null if status is inactive
+}
 
 module.exports ={Subscription,Customer}

@@ -34,16 +34,16 @@
     "status":"",
     "customerId":"", //userSchema Id
     "expiryDate":"",
-    "metdata":{
-        "updatedDate":""
-    }
+    // "metdata":{
+    //     "updatedDate":""
+    // }
 }
 
 //API: customerSubscriptionSchema
-// CREATE: POST --> Only Admin (bcoz Payment not integrated)
-// UPDATE: PUT/PATCH --> Only Admin
-// DELETE: DELETE --> Only Admin
-// GET, GET all for a customer --> Both, GET & GET all for all customers --> Admin
+// CREATE: POST --> Only Admin (bcoz Payment not integrated) --> Sahana
+// UPDATE: PUT/PATCH --> Only Admin --> Sahana
+// DELETE: DELETE --> Only Admin --> Harsha
+// GET, GET all for a customer --> Both, GET & GET all for all customers --> Admin -->Harsha
 
 // subscriptionSchema
 {
