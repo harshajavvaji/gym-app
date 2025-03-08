@@ -1,6 +1,6 @@
 const express = require("express")
 const { getAllCustomerSubscription, getCustomerSubscription, deleteCustomerSubscription, updateCustomerSubscription, getAllCustomerSubscriptionforCustomer, addCustomerSubscription } = require("../controllers/customerSubscriptionController")
-const { deleteSubscription } = require("../controllers/subscriptionController")
+// const { deleteCustomerSubscription } = require("../controllers/subscriptionController")
 const { verifyAdmin, verifyToken, verifyPermission } = require("../middleware/checkCustomer")
 
 const router = express.Router()
