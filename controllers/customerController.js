@@ -92,7 +92,7 @@ const register = async (req, res) => {
 
     customer.password = hashedPassword;
     const token = jwt.sign(
-      { Id: customer.id, role: customer.role },
+      { id: customer.id, role: customer.role },
       process.env.KEY
     );
     const data = await dynamoDB.put(params).promise();
@@ -135,7 +135,7 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
     const token = jwt.sign(
-      { Id: userRecord.Item.id, role: userRecord.Item.role },
+      { id: userRecord.Item.id, role: userRecord.Item.role },
       process.env.KEY
     );
     return res
