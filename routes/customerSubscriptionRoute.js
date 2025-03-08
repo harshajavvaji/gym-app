@@ -8,7 +8,7 @@ const router = express.Router()
 router.post('/', verifyAdmin, addCustomerSubscription)
 router.put('/:id', verifyAdmin, updateCustomerSubscription)
 router.get('/:id', verifyToken, getCustomerSubscription)
-router.get('/:custId', verifyPermission, getAllCustomerSubscriptionforCustomer) // This can be for customer/Admin
+router.get('/customer/:custId', verifyPermission, getAllCustomerSubscriptionforCustomer) // This can be for customer/Admin
 router.get('/', verifyAdmin, getAllCustomerSubscription)
 router.delete('/:id', verifyAdmin, deleteSubscription)
 
