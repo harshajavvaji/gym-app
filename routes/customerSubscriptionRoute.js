@@ -10,7 +10,7 @@ router.put('/:id', verifyAdmin, updateCustomerSubscription)
 router.get('/:id', verifyToken, getCustomerSubscription)
 router.get('/customer/:custId', verifyPermission, getAllCustomerSubscriptionforCustomer) // This can be for customer/Admin
 router.get('/', verifyAdmin, getAllCustomerSubscription)
-router.delete('/:id', verifyAdmin, deleteSubscription)
+router.delete('/:id', verifyAdmin, deleteCustomerSubscription)
 
 module.exports = router
 
