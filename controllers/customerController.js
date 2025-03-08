@@ -171,8 +171,8 @@ const deleteCustomer = async (req, res) => {
 };
 
 const updateCustomer = async (req, res) => {
+  const { id } = req.params;
   const {
-    id,
     name,
     password,
     role,
@@ -184,39 +184,82 @@ const updateCustomer = async (req, res) => {
     status,
     branch,
   } = req.body;
-  if (req.customer.role == "Admin") {
-    if (id || name || password || phoneNo || email || age) {
+  if (req.customer.role == "Admin" && req.customer.id == id) {
+    if (req.body.id || email || status) {
+      return res
+        .status(400)
+        .json({
+          message: `You are not allowed to update id,email,status`,
+        });
+    }
+    var customer = new Customer();
+    customer = req.customer;
+    if (role) {
+      customer.role = role;
+    }
+    if (activeSubscriptionId) {
+      customer.activeSubscriptionId = activeSubscriptionId;
+    }
+    if (upcomingSubscriptionId) {
+      customer.upcomingSubscriptionId = upcomingSubscriptionId;
+    }
+    if (branch) {
+      customer.branch = branch;
+    }
+    if (name) {
+      customer.name = name;
+    }
+    if (age) {
+      customer.age = age;
+    }
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      customer.password = hashedPassword;
+    }
+    if (phoneNo) {
+      customer.phoneNo = phoneNo;
+    }
+    const params = {
+      TableName: process.env.CUSTOMERTABLENAME,
+      Item: customer,
+    };
+    const updatedCustomerData = await dynamoDB.put(params).promise();
+    return res
+      .status(200)
+      .json({ message: "Customer updated successfully", customer });
+  } else if (req.customer.role == "Admin" && req.customer.id != id) {
+    if (req.body.id || name || status || password || phoneNo || email || age) {
       return res
         .status(403)
         .json({ message: "Not allowed to edit this field" });
     }
-    var customer = new Customer()
-    customer = req.customer
-    if(role){
-      customer.role = role
+    var customer = new Customer();
+    customer = req.customer;
+    if (role) {
+      customer.role = role;
     }
-    if(activeSubscriptionId){
-      customer.activeSubscriptionId = activeSubscriptionId
+    if (activeSubscriptionId) {
+      customer.activeSubscriptionId = activeSubscriptionId;
     }
-    if(upcomingSubscriptionId){
-      customer.upcomingSubscriptionId = upcomingSubscriptionId
+    if (upcomingSubscriptionId) {
+      customer.upcomingSubscriptionId = upcomingSubscriptionId;
     }
-    if(status){
-      customer.status = status
+    if (branch) {
+      customer.branch = branch;
     }
-    if(branch){
-      customer.branch = branch
-    }
-    console.log(customer)
+    console.log(customer);
     const params = {
       TableName: process.env.CUSTOMERTABLENAME,
-      Item: customer
-    }
-    const updatedCustomerData = await dynamoDB.put(params).promise()
-    return res.status(200).json({message: "Customer updated successfully", customer})
+      Item: customer,
+    };
+    const updatedCustomerData = await dynamoDB.put(params).promise();
+    return res
+      .status(200)
+      .json({ message: "Customer updated successfully", customer });
   } else if (req.customer.role == "member") {
     if (
-      id ||
+      req.body.id ||
       activeSubscriptionId ||
       role ||
       upcomingSubscriptionId ||
@@ -228,28 +271,30 @@ const updateCustomer = async (req, res) => {
         .status(403)
         .json({ message: "Not allowed to edit this field" });
     }
-    let customer = new Customer()
-    customer = req.customer
-    if(name){
-      customer.name = name
+    let customer = new Customer();
+    customer = req.customer;
+    if (name) {
+      customer.name = name;
     }
-    if(age){
-      customer.age = age
+    if (age) {
+      customer.age = age;
     }
-    if(password){
-      const salt = await bcrypt.genSalt(10)
-      const hashedPassword = await bcrypt.hash(password, salt)
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
       customer.password = hashedPassword;
     }
-    if(phoneNo){
-      customer.phoneNo = phoneNo
+    if (phoneNo) {
+      customer.phoneNo = phoneNo;
     }
     const params = {
       TableName: process.env.CUSTOMERTABLENAME,
-      Item: customer
-    }
+      Item: customer,
+    };
     const updatedCustomerData = await dynamoDB.put(params).promise();
-    return res.status(200).json({message: "User updated successfully", updatedCustomerData})
+    return res
+      .status(200)
+      .json({ message: "User updated successfully", updatedCustomerData });
   }
 };
 
@@ -280,12 +325,10 @@ const getCustomers = async (req, res) => {
   };
   try {
     const data = await dynamoDB.scan(params).promise();
-    return res
-      .status(200)
-      .json({
-        message: "Fetched Customers Successfully",
-        customers: data.Items,
-      });
+    return res.status(200).json({
+      message: "Fetched Customers Successfully",
+      customers: data.Items,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error", error });
   }
