@@ -20,7 +20,7 @@ class Customer{
 class Subscription{
     id
     name
-    type
+    type 
     amount
     validity
     isActive

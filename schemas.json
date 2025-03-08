@@ -57,6 +57,6 @@
 
 // API:Subscriptions --> Only Admin
 // CREATE: POST --> Sahana
-// UPDATE: PUT/PATCH --> Harsha
-// DELETE: DELETE //--> Only when no active customerSubscription record has this as subscriptionId -->Harsha
+// UPDATE: PUT/PATCH --> Sahana
+// DELETE: DELETE //--> Harsha Only when no active customerSubscription record has this as subscriptionId -->Harsha
 // GET, GET all : GET --> Sahana
