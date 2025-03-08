@@ -19,20 +19,20 @@ const verifyToken = async (req, res, next) => {
     if (!token) {
         return res.status(400).json({ message: 'Token not found' })
     }
-    const customer = jwt.verify(token, key)
-    if (!customer) {
+    const data = jwt.verify(token, key)
+    if (!data) {
         return res.status(400).json({ message: 'Customer data not retained' })
     }
     const params = {
         TableName: process.env.CUSTOMERTABLENAME,
-        Key: { id: id }
+        Key: { id: data.id }
     }
     try {
-        const data = await dynamoDB.get(params).promise()
-        if (!data.Item) {
+        const customer = await dynamoDB.get(params).promise()
+        if (!customer.Item) {
             throw new Error("Item not found");
         }
-        req.customer = data;
+        req.customer = customer;
         console.log(req.customer)
         next();
     } catch (error) {
