@@ -37,7 +37,48 @@ const addSubscription = async (req, res) => {
 }
 
 const updateSubscription = async (req, res) => {
-    res.status(200).send("Updated Subscription Successfully")
+    const { id, name, type, amount, validity, isActive } = req.body
+    if (id || type) {
+        return res.status(403).json({ message: "Not allowed to update these fields" })
+    }
+
+    var params = {
+        TableName: process.env.SUBSCRIPTIONTABLENAME,
+        Key: { id: req.params.id }
+    }
+
+    try {
+        var subscription = await dynamoDB.get(params).promise()
+        if (Object.keys(subscription).length == 0) {
+            return res.status(404).json({ message: `Resource ${id} not found` })
+        }
+        console.log("array",subscription)
+        subscription = subscription.Item
+        console.log("Item",subscription)
+        if (name) {
+            subscription.name = name
+        }
+        if (amount) {
+            subscription.amount = amount
+        }
+        if (validity) {
+            subscription.validity = validity
+        }
+        if (isActive) {
+            subscription.isActive = isActive
+        }
+        console.log("tobeUpdated", subscription)
+        params = {
+            TableName: process.env.SUBSCRIPTIONTABLENAME,
+            Item: subscription
+        }
+        const data = await dynamoDB.put(params).promise();
+        console.log(data)
+        return res.status(201).json({ message: "Subscription Updated Successfully", subscription })
+
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error", error })
+    }
 }
 
 const getSubscription = async (req, res) => {
@@ -50,8 +91,8 @@ const getSubscription = async (req, res) => {
 
     try {
         const subscription = await dynamoDB.get(params).promise()
-        if(Object.keys(subscription).length==0){
-            return res.status(404).json({message: `Resource ${id} not found`})
+        if (Object.keys(subscription).length == 0) {
+            return res.status(404).json({ message: `Resource ${id} not found` })
         }
         return res.status(200).json(subscription.Item)
     } catch (error) {
