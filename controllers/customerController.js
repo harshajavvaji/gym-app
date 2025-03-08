@@ -161,79 +161,137 @@ const deleteCustomer = async (req, res) => {
     }
     // Deletes an entry from customer table with primary key as Id
     await dynamoDB.delete(params).promise();
-    return res.status(204).json()
+    return res.status(204).json();
     // return res.status(204);
   } catch (error) {
-    return res.status(500).json({ message: "Unable to delete Customer entry", error });
+    return res
+      .status(500)
+      .json({ message: "Unable to delete Customer entry", error });
   }
 };
 
-const updateCustomer  = async(req,res)=>{
-  return res.status(200).json({message: "Updated customer Successfully."})
-}
-// const updateCustomer = async (req, res) => {
-//   const { Name, password, id, email, phoneNo, age, role, status, activeSubscriptionId, upcomingSubscriptionId } = req.body
-//   if (req.customer.role == "Admin") {
-//     if (email || password || id || phoneNo || Name || age) {
-//       return res.status(403).json({ message: "Not allowed to perform this action" })
-//     }
-//     const customer = new Customer();
-//     customer = req.customer
-//     if (Name) {
-//       customer.Name = Name
-//     }
-//     const params = {
-//       TableName: process.env.CUSTOMERTABLENAME,
-//       Item: customer,
-//     };
-//     const data = await dynamoDB.put(params).promise();
-
-//   }
-//   else if (req.customer.role == "member") {
-//     if (id || role || status || activeSubscriptionId || upcomingSubscriptionId) {
-//       return res.status(403).json({ message: "Not allowed to perform this action" })
-//     }
-
-//   }
-//   return res.status(200).json("Updated customer successfully")
-// }
+const updateCustomer = async (req, res) => {
+  const {
+    id,
+    name,
+    password,
+    role,
+    age,
+    phoneNo,
+    email,
+    activeSubscriptionId,
+    upcomingSubscriptionId,
+    status,
+    branch,
+  } = req.body;
+  if (req.customer.role == "Admin") {
+    if (id || name || password || phoneNo || email || age) {
+      return res
+        .status(403)
+        .json({ message: "Not allowed to edit this field" });
+    }
+    var customer = new Customer()
+    customer = req.customer
+    if(role){
+      customer.role = role
+    }
+    if(activeSubscriptionId){
+      customer.activeSubscriptionId = activeSubscriptionId
+    }
+    if(upcomingSubscriptionId){
+      customer.upcomingSubscriptionId = upcomingSubscriptionId
+    }
+    if(status){
+      customer.status = status
+    }
+    if(branch){
+      customer.branch = branch
+    }
+    console.log(customer)
+    const params = {
+      TableName: process.env.CUSTOMERTABLENAME,
+      Item: customer
+    }
+    const updatedCustomerData = await dynamoDB.put(params).promise()
+    return res.status(200).json({message: "Customer updated successfully", customer})
+  } else if (req.customer.role == "member") {
+    if (
+      id ||
+      activeSubscriptionId ||
+      role ||
+      upcomingSubscriptionId ||
+      email ||
+      status ||
+      branch
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Not allowed to edit this field" });
+    }
+    let customer = new Customer()
+    customer = req.customer
+    if(name){
+      customer.name = name
+    }
+    if(age){
+      customer.age = age
+    }
+    if(password){
+      const salt = await bcrypt.genSalt(10)
+      const hashedPassword = await bcrypt.hash(password, salt)
+      customer.password = hashedPassword;
+    }
+    if(phoneNo){
+      customer.phoneNo = phoneNo
+    }
+    const updatedCustomerData = await dynamoDB.put(params).promise();
+    return res.status(200).json({message: "User updated successfully", updatedCustomerData})
+  }
+};
 
 const getCustomer = async (req, res) => {
-
-  const { id } = req.params
+  const { id } = req.params;
   const params = {
     TableName: process.env.CUSTOMERTABLENAME,
-    Key: { id }
-  }
+    Key: { id },
+  };
 
   try {
-    const customer = await dynamoDB.get(params).promise()
+    const customer = await dynamoDB.get(params).promise();
     if (Object.keys(customer).length == 0) {
-      return res.status(404).json({ message: `Resource ${id} not found` })
+      return res.status(404).json({ message: `Resource ${id} not found` });
     }
-    return res.status(200).json(customer.Item)
+    return res.status(200).json(customer.Item);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" })
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
 
 const getCustomers = async (req, res) => {
-
-  const { nextBookmark } = req.query
+  const { nextBookmark } = req.query;
   const params = {
     TableName: process.env.CUSTOMERTABLENAME,
     Limit: 10, //kept 10 as default value.
-    ExclusiveStartKey: nextBookmark ? { id: nextBookmark } : null //Expected format for nextBookmark is {id: "44a57314-f9a2-4920-86bc-1cf8010d7fee"}
-  }
+    ExclusiveStartKey: nextBookmark ? { id: nextBookmark } : null, //Expected format for nextBookmark is {id: "44a57314-f9a2-4920-86bc-1cf8010d7fee"}
+  };
   try {
-    const data = await dynamoDB.scan(params).promise()
-    return res.status(200).json({ message: "Fetched Customers Successfully", customers: data.Items })
+    const data = await dynamoDB.scan(params).promise();
+    return res
+      .status(200)
+      .json({
+        message: "Fetched Customers Successfully",
+        customers: data.Items,
+      });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
-  catch (error) {
-    return res.status(500).json({ message: "Internal Server Error", error })
-  }
-}
+};
 
-module.exports = { register, login, deleteCustomer, getCustomers, getCustomer, updateCustomer };
-
-
+module.exports = {
+  register,
+  login,
+  deleteCustomer,
+  getCustomers,
+  getCustomer,
+  updateCustomer,
+};
