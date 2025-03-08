@@ -118,8 +118,24 @@ const getSubscriptions = async (req, res) => {
 }
 
 const deleteSubscription = async (req, res) => {
-    res.status(204).send("Deleted Subscription Successfully")
+    try {
+        const { id } = req.params
+        const params = {
+            TableName: process.env.SUBSCRIPTIONTABLENAME,
+            Key: {
+                id
+            }
+        }
+        const subscription = await dynamoDB.get(params).promise();
+        if(Object.keys(subscription).length == 0){
+            return res.status(404).json({message: `Resource ${id} not found`})
+        }
+        await dynamoDB.delete(params).promise();
+        return res.status(204).send("Deleted Subscription Successfully")
+    } catch (error) {
+        return res.status(500).json({message: "Internal server error"})
+    }
 }
 
 
-module.exports = { addSubscription, updateSubscription, getSubscription, getSubscriptions, deleteSubscription }
+module.exports = { addSubscription, updateSubscription, getSubscription, getSubscriptions, deleteSubscription,  }
