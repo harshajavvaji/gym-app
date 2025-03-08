@@ -58,8 +58,10 @@ const verifyCustomer = async (req, res, next) => {
 
 const verifyPermission = async (req, res, next) => {
     try {
+        const { id, custId } = req.params
+        let pathId = id ? id : custId // generally the pathParam would be id, but in getCustSubForCust we get :custId 
         verifyToken(req, res, () => {
-            if (req.customer.id == req.params.id || req.customer.role == "Admin") {
+            if (req.customer.id == pathId || req.customer.role == "Admin") {
                 next()
             }
             else {
