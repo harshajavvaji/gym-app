@@ -6,18 +6,18 @@
 {
     "id": "", // Cant be updated 
     "Name": "",
-    "role":"", // Admin/user
+    "role":"", // (values: Admin/customer) --> Should be updated only by Admin
     "age":"",
     "phoneNo":"", 
-    "email":"",
+    "email":"",// Cant be updated
     "password":"",
-    "activeSubscriptionId":"", 
-    "upcomingSubscriptionId":"",
-    "status":"",
-    "branch":"",
-    "metdata":{
-        "updatedDate":""
-    }
+    "activeSubscriptionId":"", // Only Admin can update
+    "upcomingSubscriptionId":"", // Only Admin can update
+    "status":"", // (values: active/inactive) --> Only Admin can update
+    "branch":"", // Customer/Admin can update
+    // "metdata":{
+    //     "updatedDate":""
+    // }
 }
 
 // API:USERS
@@ -47,12 +47,12 @@
 
 // subscriptionSchema
 {
-    "id":"",
-    "name":"",
-    "type":"Subscription",
-    "amount":"",
-    "validity":"", //3m/4m
-    "isActive":"" //--> for Offer visibility, for 
+    "id":"", // Cant be updated
+    "name":"", // Only Admin
+    "type":"Subscription", // Cant be updated
+    "amount":"", // Only Admin
+    "validity":"", //3m/4m //Only Admin
+    "isActive":"" //--> for Offer visibility, // Only Admin
 }
 
 // API:Subscriptions --> Only Admin

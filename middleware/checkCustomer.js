@@ -56,6 +56,21 @@ const verifyCustomer = async (req, res, next) => {
     }
 }
 
+const verifyPermission = async (req, res, next) => {
+    try {
+        verifyToken(req, res, () => {
+            if (req.customer.id == req.params.id || req.customer.role == "Admin") {
+                next()
+            }
+            else {
+                return res.status(403).json({ message: "Not Allowed to perform this action." })
+            }
+        })
+    } catch (error) {
+        return res.status(403).json({ message: "Not Alowed to perform this action." })
+    }
+}
+
 const verifyAdmin = async (req, res, next) => {
     try {
         verifyToken(req, res, () => {
@@ -71,4 +86,4 @@ const verifyAdmin = async (req, res, next) => {
     }
 }
 
-module.exports = { verifyToken, verifyAdmin, verifyCustomer };
+module.exports = { verifyToken, verifyAdmin, verifyCustomer, verifyPermission };
