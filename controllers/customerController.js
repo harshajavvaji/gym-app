@@ -74,7 +74,7 @@ const register = async (req, res) => {
   customer.activeSubscriptionId = activeSubscriptionId;
   customer.upcomingSubscriptionId = upcomingSubscriptionId;
   customer.password = password;
-  customer.status = status;
+  customer.status = "newUser"; // by default would make it newUser when customer is created (should discuss)
   customer.branch = branch;
 
   const params = {
