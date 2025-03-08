@@ -1,5 +1,5 @@
 
-class Customer{
+class Customer {
     id;
     name;
     role;
@@ -17,21 +17,21 @@ class Customer{
 }
 
 
-class Subscription{
+class Subscription {
     id
     name
-    type 
+    type
     amount
     validity
     isActive
 }
 
-class CustomerSubscription{
+class CustomerSubscription {
     id
     subscriptionId
     status // active/inactive/expired
-    customerId 
+    customerId
     expiryDate // would be null if status is inactive
 }
 
-module.exports ={Subscription, Customer, CustomerSubscription}
+module.exports = { Subscription, Customer, CustomerSubscription }

@@ -244,6 +244,10 @@ const updateCustomer = async (req, res) => {
     if(phoneNo){
       customer.phoneNo = phoneNo
     }
+    const params = {
+      TableName: process.env.CUSTOMERTABLENAME,
+      Item: customer
+    }
     const updatedCustomerData = await dynamoDB.put(params).promise();
     return res.status(200).json({message: "User updated successfully", updatedCustomerData})
   }
