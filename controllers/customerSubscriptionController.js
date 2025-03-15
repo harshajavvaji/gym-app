@@ -48,6 +48,10 @@ const addCustomerSubscription = async (req, res) => {
             return res.status(400).json({message: `Subscription ${subscriptionId} not found`})
         }
         subscription = subscription.Item
+        
+        custSubscription.type = subscription.name
+        custSubscription.price = subscription.amount
+        custSubscription.name = customer.name
 
         let months = Number((subscription.validity).slice(0, -1)) // validity would be in 3m/6m format
         let currentDate = new Date()
