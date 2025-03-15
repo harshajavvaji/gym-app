@@ -116,7 +116,7 @@ const getAllCustomerSubscription = async (req, res) => {
     const { nextBookmark } = req.query;
     const params = {
          TableName: process.env.CUSTOMERSUBSCRIPTIONTABLENAME,
-         Limit: 1,
+         Limit: 10,
          ExclusiveStartKey : nextBookmark ? { id : nextBookmark}: null
     }
     try {
