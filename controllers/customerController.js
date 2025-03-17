@@ -146,6 +146,36 @@ const login = async (req, res) => {
   }
 };
 
+const loginAsAdmin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await checkEmailExists(email);
+    if (user.count == 0) {
+      return res
+        .status(400)
+        .json({ message: "Email does not exist, Register and try" });
+    }
+    const userRecord = await getUserRecord(user.Items[0].id);
+    const status = await bcrypt.compare(password, userRecord.Item.password);
+    if (!status) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    if (userRecord.Item.role != "Admin") {
+      return res.status(403).json({ message: "Not allowed to login" })
+    }
+    const token = jwt.sign(
+      { id: userRecord.Item.id, role: userRecord.Item.role },
+      process.env.KEY
+    );
+    return res
+      .status(200)
+      .json({ message: "Logged in successfully", userRecord, token });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 const deleteCustomer = async (req, res) => {
   const { id } = req.params;
   const params = {
@@ -192,19 +222,19 @@ const updateCustomer = async (req, res) => {
     }
     var customer = new Customer()
     customer = req.customer
-    if(role){
+    if (role) {
       customer.role = role
     }
-    if(activeSubscriptionId){
+    if (activeSubscriptionId) {
       customer.activeSubscriptionId = activeSubscriptionId
     }
-    if(upcomingSubscriptionId){
+    if (upcomingSubscriptionId) {
       customer.upcomingSubscriptionId = upcomingSubscriptionId
     }
-    if(status){
+    if (status) {
       customer.status = status
     }
-    if(branch){
+    if (branch) {
       customer.branch = branch
     }
     console.log(customer)
@@ -213,7 +243,7 @@ const updateCustomer = async (req, res) => {
       Item: customer
     }
     const updatedCustomerData = await dynamoDB.put(params).promise()
-    return res.status(200).json({message: "Customer updated successfully", customer})
+    return res.status(200).json({ message: "Customer updated successfully", customer })
   } else if (req.customer.role == "member") {
     if (
       id ||
@@ -230,18 +260,18 @@ const updateCustomer = async (req, res) => {
     }
     let customer = new Customer()
     customer = req.customer
-    if(name){
+    if (name) {
       customer.name = name
     }
-    if(age){
+    if (age) {
       customer.age = age
     }
-    if(password){
+    if (password) {
       const salt = await bcrypt.genSalt(10)
       const hashedPassword = await bcrypt.hash(password, salt)
       customer.password = hashedPassword;
     }
-    if(phoneNo){
+    if (phoneNo) {
       customer.phoneNo = phoneNo
     }
     const params = {
@@ -249,7 +279,7 @@ const updateCustomer = async (req, res) => {
       Item: customer
     }
     const updatedCustomerData = await dynamoDB.put(params).promise();
-    return res.status(200).json({message: "User updated successfully", updatedCustomerData})
+    return res.status(200).json({ message: "User updated successfully", updatedCustomerData })
   }
 };
 
@@ -298,4 +328,5 @@ module.exports = {
   getCustomers,
   getCustomer,
   updateCustomer,
+  loginAsAdmin
 };
