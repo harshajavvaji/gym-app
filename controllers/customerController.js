@@ -202,8 +202,7 @@ const updateCustomer = async (req, res) => {
     branch,
   } = req.body;
   if (req.customer.role == "Admin" && req.customer.id == id) {
-    if (req.body.id 
-      || (email? (email != customerToBeUpdated.email): false)
+    if ((email? (email != customerToBeUpdated.email): false)
       || (status? (status != customerToBeUpdated.status): false )
       
     ) {
@@ -250,7 +249,7 @@ const updateCustomer = async (req, res) => {
       .json({ message: "Customer updated successfully", customer });
   } else if (req.customer.role == "Admin" && req.customer.id != id) {
     // || status || password || phoneNo || email || age
-    if (req.body.id || (name? (name != customerToBeUpdated.name): false)
+    if ((name? (name != customerToBeUpdated.name): false)
           || (status? (status != customerToBeUpdated.status): false ) 
           || (password? (password != customerToBeUpdated.password): false)
           || (phoneNo? (phoneNo != customerToBeUpdated.phoneNo): false)
@@ -286,9 +285,7 @@ const updateCustomer = async (req, res) => {
       .status(200)
       .json({ message: "Customer updated successfully", customer });
   } else if (req.customer.role == "member") {
-    if (
-      req.body.id
-      || (activeSubscriptionId? (activeSubscriptionId != customerToBeUpdated.activeSubscriptionId): false)
+    if ((activeSubscriptionId? (activeSubscriptionId != customerToBeUpdated.activeSubscriptionId): false)
           || (role? (role != customerToBeUpdated.role): false ) 
           || (upcomingSubscriptionId? (upcomingSubscriptionId != customerToBeUpdated.upcomingSubscriptionId): false)
           || (status? (status != customerToBeUpdated.status): false)
