@@ -2,19 +2,11 @@ const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require("uuid")
 const { CustomerSubscription } = require("../schemas/schemas")
 
-<<<<<<< HEAD
-
-AWS.config.update({
-    region: process.env.REGION, // Replace with your region
-    accessKeyId: process.env.ACCESSKEYID, // Replace with your access key ID
-    secretAccessKey: process.env.SECRETACCESSKEY // Replace with your secret access key
-=======
 // Configure AWS SDK
 AWS.config.update({
     region: process.env.REGION, // Replace with your region
     accessKeyId: process.env.ACCESSKEYID, // Replace with your access key ID
     secretAccessKey: process.env.SECRETACCESSKEY, // Replace with your secret access key
->>>>>>> 76c34fd2a8da4aea09be8f58ca65fe1ff6e7f446
 });
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
