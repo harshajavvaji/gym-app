@@ -146,6 +146,36 @@ const login = async (req, res) => {
   }
 };
 
+const loginAsAdmin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await checkEmailExists(email);
+    if (user.count == 0) {
+      return res
+        .status(400)
+        .json({ message: "Email does not exist, Register and try" });
+    }
+    const userRecord = await getUserRecord(user.Items[0].id);
+    const status = await bcrypt.compare(password, userRecord.Item.password);
+    if (!status) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    if (userRecord.Item.role != "Admin") {
+      return res.status(403).json({ message: "Not allowed to login" })
+    }
+    const token = jwt.sign(
+      { id: userRecord.Item.id, role: userRecord.Item.role },
+      process.env.KEY
+    );
+    return res
+      .status(200)
+      .json({ message: "Logged in successfully", userRecord, token });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
 const deleteCustomer = async (req, res) => {
   const { id } = req.params;
   const params = {
@@ -366,4 +396,5 @@ module.exports = {
   getCustomers,
   getCustomer,
   updateCustomer,
+  loginAsAdmin
 };

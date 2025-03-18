@@ -38,7 +38,7 @@ const addSubscription = async (req, res) => {
 
 const updateSubscription = async (req, res) => {
     const { id, name, type, amount, validity, isActive } = req.body
-    if (id || type) {
+    if (type) {
         return res.status(403).json({ message: "Not allowed to update these fields" })
     }
 
