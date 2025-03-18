@@ -7,7 +7,7 @@ router.post('/register', register);
 router.post('/login', login)
 router.get('/:id', verifyToken, getCustomer)
 router.get('/', verifyAdmin, getCustomers)
-router.delete('/:id', verifyCustomer, deleteCustomer)
+router.delete('/:id', verifyAdmin, deleteCustomer)
 router.put('/:id', verifyPermission, updateCustomer)
 
 module.exports = router;

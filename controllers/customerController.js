@@ -172,6 +172,22 @@ const deleteCustomer = async (req, res) => {
 
 const updateCustomer = async (req, res) => {
   const { id } = req.params;
+  const params2 = {
+    TableName: process.env.CUSTOMERTABLENAME,
+    Key: { id },
+  };
+
+  try {
+    const customer = await dynamoDB.get(params2).promise();
+    if (Object.keys(customer).length == 0) {
+      return res.status(404).json({ message: `Customer ${id} not found` });
+    }
+    let customerToBeUpdated = customer.Item
+    console.log(customerToBeUpdated, "test new cust")
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+  
   const {
     name,
     password,
@@ -186,14 +202,12 @@ const updateCustomer = async (req, res) => {
   } = req.body;
   if (req.customer.role == "Admin" && req.customer.id == id) {
     if (req.body.id || email || status) {
-      return res
-        .status(400)
-        .json({
-          message: `You are not allowed to update id,email,status`,
-        });
+      return res.status(400).json({
+        message: `You are not allowed to update id,email,status`,
+      });
     }
     var customer = new Customer();
-    customer = req.customer;
+    customer = customerToBeUpdated;
     if (role) {
       customer.role = role;
     }
@@ -205,6 +219,7 @@ const updateCustomer = async (req, res) => {
     }
     if (branch) {
       customer.branch = branch;
+      console.log(customer.branch, "test update");
     }
     if (name) {
       customer.name = name;
@@ -235,7 +250,8 @@ const updateCustomer = async (req, res) => {
         .json({ message: "Not allowed to edit this field" });
     }
     var customer = new Customer();
-    customer = req.customer;
+    console.log(customerToBeUpdated, "test sahana")
+    customer = customerToBeUpdated;
     if (role) {
       customer.role = role;
     }
@@ -272,7 +288,7 @@ const updateCustomer = async (req, res) => {
         .json({ message: "Not allowed to edit this field" });
     }
     let customer = new Customer();
-    customer = req.customer;
+    customer = customerToBeUpdated;
     if (name) {
       customer.name = name;
     }
