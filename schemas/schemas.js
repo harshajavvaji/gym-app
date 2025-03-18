@@ -32,6 +32,9 @@ class CustomerSubscription {
     status // active/inactive/expired
     customerId
     expiryDate // would be null if status is inactive
+    name
+    type // basic/super/premium
+    price // price
 }
 
 module.exports = { Subscription, Customer, CustomerSubscription }
