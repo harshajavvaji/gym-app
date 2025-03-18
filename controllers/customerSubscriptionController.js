@@ -52,6 +52,10 @@ const addCustomerSubscription = async (req, res) => {
         custSubscription.type = subscription.name
         custSubscription.price = subscription.amount
         custSubscription.name = customer.name
+        const date = new Date()
+        const registerDate = `${date.getDate()}-${String(date.getMonth()).length==1 ? "0" + String(date.getMonth() + 1) :(date.getMonth() + 1) }-${date.getFullYear()}`
+        // console.log(`${date.getDate()}-${String(date.getMonth()).length==1 ? "0" + String(date.getMonth() + 1) :(date.getMonth() + 1) }-${date.getFullYear()}`, 'date')
+        custSubscription.registerDate = registerDate
 
         let months = Number((subscription.validity).slice(0, -1)) // validity would be in 3m/6m format
         let currentDate = new Date()
@@ -63,6 +67,7 @@ const addCustomerSubscription = async (req, res) => {
             customer.status = "active"
             custSubscription.status = "active"
             custSubscription.expiryDate = expiryTime
+            custSubscription.startDate = registerDate
             customer.activeSubscriptionId = id // update this record as the activeSubscription of the customer
         }
         else {
