@@ -386,13 +386,25 @@ const getCustomers = async (req, res) => {
     return res.status(200).json({
       message: "Fetched Customers Successfully",
       customers: data.Items,
+      nextBookmark: data.LastEvaluatedKey ? data.LastEvaluatedKey.id : undefined
     });
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
+const confirmAdmin = async(req,res)=>{
+  if(req.customer.role == "Admin"){
+    return res.status(200).json({isAdmin: true})
+  }
+  else{
+    return res.status(200).json({isAdmin: false})
+  }
+}
+
+
 module.exports = {
+  confirmAdmin,
   register,
   login,
   deleteCustomer,
