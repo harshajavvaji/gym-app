@@ -69,6 +69,8 @@ const register = async (req, res) => {
         upcomingSubscriptionId,
         branch,
         profilePicture,
+        height,
+        weight,
       } = req.body;
       const customer = new Customer();
       const id = uuidv4();
@@ -84,6 +86,8 @@ const register = async (req, res) => {
       customer.status = "newUser"; // by default would make it newUser when customer is created (should discuss)
       customer.branch = branch;
       customer.profilePicture = profilePicture;
+      customer.height = height;
+      customer.weight = weight;
 
       if (req.file) {
         customer.profilePicture = req.file.path;

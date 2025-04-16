@@ -12,6 +12,8 @@ class Customer {
     status; //Same as the customerSubscription status
     branch;
     profilePicture;
+    height;
+    weight;
     // metdata = {
     //     updatedDate
     // }
