@@ -3,7 +3,7 @@ class Customer {
     id;
     name;
     role;
-    age;
+    dob;
     phoneNo;
     email;
     password;
@@ -11,6 +11,7 @@ class Customer {
     upcomingSubscriptionId;
     status; //Same as the customerSubscription status
     branch;
+    profilePicture;
     // metdata = {
     //     updatedDate
     // }
