@@ -46,15 +46,20 @@ class Activity {
 }
 
 class CustomerActivity {
-    constructor(id, customerId, activities = [], date, inTime, outTime, weight = null) {
-        this.id = id;
-        this.customerId = customerId;
-        this.activities = activities;  // Changed from activity:[Activity] to activities
-        this.date = date;
+    id
+    customerId
+    activities
+    date
+    inTime
+    outTime
+    weight // optional, null if not provided
+    resourceType // for identification in db.
+    constructor(activities = [], inTime, outTime, date) {
         this.inTime = inTime;
         this.outTime = outTime;
-        this.weight = weight;
-        this.resourceType = 'acitivity' // for identification in db.
+        this.date = date;
+        this.activities = activities;  // Changed from activity:[Activity] to activities
+        this.resourceType = 'activity' // for identification in db.
     }
 }
 
