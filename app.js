@@ -19,6 +19,7 @@ app.use("/api/customers", require("./routes/customerRoute"));
 app.use("/api/subscriptions", require("./routes/subscriptionRoute"));
 app.use("/api/customerSubscriptions", require("./routes/customerSubscriptionRoute"))
 app.use("/api/branches", require("./routes/branchRoute"))
+app.use("/api/log", require("./routes/customerLoggingRoute"))
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
