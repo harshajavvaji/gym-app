@@ -54,6 +54,7 @@ class CustomerActivity {
         this.inTime = inTime;
         this.outTime = outTime;
         this.weight = weight;
+        this.resourceType = 'acitivity' // for identification in db.
     }
 }
 
@@ -71,4 +72,4 @@ class CustomerActivity {
 // );    
 
 
-module.exports = { Subscription, Customer, CustomerSubscription, CustomerActivity }
+module.exports = { Subscription, Customer, CustomerSubscription, CustomerActivity, Activity }
