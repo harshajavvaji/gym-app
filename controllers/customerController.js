@@ -16,6 +16,10 @@ AWS.config.update({
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
 async function checkEmailExists(email) {
+  // Add validation
+  if (!email) {
+    throw new Error("Email cannot be empty");
+  }
   const params = {
     TableName: process.env.CUSTOMERTABLENAME,
     IndexName: "email-index",
@@ -50,58 +54,81 @@ async function checkIdExists(id) {
   }
 }
 
+
+
 const register = async (req, res) => {
-  const {
-    name,
-    role,
-    age,
-    phoneNo,
-    email,
-    password,
-    activeSubscriptionId,
-    upcomingSubscriptionId,
-    status,
-    branch,
-  } = req.body;
-  const customer = new Customer();
-  const id = uuidv4();
-  customer.id = id;
-  customer.name = name;
-  customer.role = role;
-  customer.age = age;
-  customer.phoneNo = phoneNo;
-  customer.email = email;
-  customer.activeSubscriptionId = activeSubscriptionId;
-  customer.upcomingSubscriptionId = upcomingSubscriptionId;
-  customer.password = password;
-  customer.status = "newUser"; // by default would make it newUser when customer is created (should discuss)
-  customer.branch = branch;
-
-  const params = {
-    TableName: process.env.CUSTOMERTABLENAME,
-    Item: customer,
-  };
-
   try {
-    const user = await checkEmailExists(customer.email);
-    if (user.count > 0) {
-      return res.status(400).json({ message: "Email already exists" });
-    }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(customer.password, salt);
+      const {
+        name,
+        role,
+        dob,
+        phoneNo,
+        email,
+        password,
+        activeSubscriptionId,
+        upcomingSubscriptionId,
+        branch,
+        profilePicture,
+        height,
+        weight,
+      } = req.body;
+      const customer = new Customer();
+      const id = uuidv4();
+      customer.id = id;
+      customer.name = name;
+      customer.role = role;
+      customer.dob = dob;
+      customer.phoneNo = phoneNo;
+      customer.email = email;
+      customer.activeSubscriptionId = activeSubscriptionId;
+      customer.upcomingSubscriptionId = upcomingSubscriptionId;
+      customer.password = password;
+      customer.status = "newUser"; // by default would make it newUser when customer is created (should discuss)
+      customer.branch = branch;
+      customer.profilePicture = profilePicture;
+      customer.height = height;
+      customer.weight = weight;
 
-    customer.password = hashedPassword;
-    const token = jwt.sign(
-      { id: customer.id, role: customer.role },
-      process.env.KEY
-    );
-    const data = await dynamoDB.put(params).promise();
+      if (req.file) {
+        customer.profilePicture = req.file.path;
+      }
 
-    return res
-      .status(201)
-      .json({ message: "User created successfully", customer, token });
+      const params = {
+        TableName: process.env.CUSTOMERTABLENAME,
+        Item: customer,
+      };
+
+      try {
+        const user = await checkEmailExists(customer.email);
+        if (user.count > 0) {
+          return res.status(400).json({ message: "Email already exists" });
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(customer.password, salt);
+
+        customer.password = hashedPassword;
+        const token = jwt.sign(
+          { id: customer.id, role: customer.role },
+          process.env.KEY,
+          { expiresIn: "1h" } // Set the token expiry to 1 hour
+        );
+        const data = await dynamoDB.put(params).promise();
+
+        return res
+          .status(201)
+          .json({ message: "User created successfully", customer, token });
+      } catch (error) {
+        return res
+          .status(500)
+          .json({ message: "Internal server error", error });
+      }
+    ;
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error1", error });
+    console.error("Registration error details:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
@@ -122,8 +149,25 @@ async function getUserRecord(id) {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ error: "Please enter a valid email address" });
+    }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        error:
+          "Password must be at least 8 characters long, contain uppercase, lowercase, number, and special character",
+      });
+    }
+
   try {
     const user = await checkEmailExists(email);
+    console.log(user, "user record");
     if (user.count == 0) {
       return res
         .status(400)
@@ -136,11 +180,15 @@ const login = async (req, res) => {
     }
     const token = jwt.sign(
       { id: userRecord.Item.id, role: userRecord.Item.role },
-      process.env.KEY
+      process.env.KEY,
+      {expiresIn : "1h"}
     );
+
+    const { password: _ , ...userRecordWithoutPassword } = userRecord.Item; // Destructure to remove password from the response
+    // const userRecordWithoutPassword = { ...userRecord.Item, password: undefined }; // Remove password from the response
     return res
       .status(200)
-      .json({ message: "Logged in successfully", userRecord, token });
+      .json({ message: "Logged in successfully", userRecord : userRecordWithoutPassword, token });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error", error });
   }
@@ -162,15 +210,17 @@ const loginAsAdmin = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
     if (userRecord.Item.role != "Admin") {
-      return res.status(403).json({ message: "Not allowed to login" })
+      return res.status(403).json({ message: "Not allowed to login" });
     }
     const token = jwt.sign(
       { id: userRecord.Item.id, role: userRecord.Item.role },
-      process.env.KEY
+      process.env.KEY,
+      { expiresIn: "1h" } // Set the token expiry to 1 hour
     );
+    const jwtExpiry = new Date(Date.now() + 1 * 60 * 1000); // 1 hour expiry
     return res
       .status(200)
-      .json({ message: "Logged in successfully", userRecord, token });
+      .json({ message: "Logged in successfully", userRecord, token, jwtExpiry });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error", error });
   }
@@ -206,24 +256,22 @@ const updateCustomer = async (req, res) => {
     TableName: process.env.CUSTOMERTABLENAME,
     Key: { id },
   };
-  let customerToBeUpdated = {}
+  let customerToBeUpdated = {};
   try {
     const customer = await dynamoDB.get(params2).promise();
     if (Object.keys(customer).length == 0) {
       return res.status(404).json({ message: `Customer ${id} not found` });
     }
-    customerToBeUpdated = customer.Item
-    console.log(customerToBeUpdated, "test new cust")
+    customerToBeUpdated = customer.Item;
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" });
   }
-  
-  
+
   const {
     name,
     password,
     role,
-    age,
+    dob,
     phoneNo,
     email,
     activeSubscriptionId,
@@ -232,10 +280,9 @@ const updateCustomer = async (req, res) => {
     branch,
   } = req.body;
   if (req.customer.role == "Admin" && req.customer.id == id) {
-    if (req.body.id 
-      || (email? (email != customerToBeUpdated.email): false)
-      || (status? (status != customerToBeUpdated.status): false )
-      
+    if (
+      (email ? email != customerToBeUpdated.email : false) ||
+      (status ? status != customerToBeUpdated.status : false)
     ) {
       return res.status(400).json({
         message: `You are not allowed to update id,email,status`,
@@ -259,8 +306,8 @@ const updateCustomer = async (req, res) => {
     if (name) {
       customer.name = name;
     }
-    if (age) {
-      customer.age = age;
+    if (dob) {
+      customer.dob = dob;
     }
     if (password) {
       const salt = await bcrypt.genSalt(10);
@@ -279,20 +326,20 @@ const updateCustomer = async (req, res) => {
       .status(200)
       .json({ message: "Customer updated successfully", customer });
   } else if (req.customer.role == "Admin" && req.customer.id != id) {
-    // || status || password || phoneNo || email || age
-    if (req.body.id || (name? (name != customerToBeUpdated.name): false)
-          || (status? (status != customerToBeUpdated.status): false ) 
-          || (password? (password != customerToBeUpdated.password): false)
-          || (phoneNo? (phoneNo != customerToBeUpdated.phoneNo): false)
-          || (email? (email != customerToBeUpdated.email): false)
-          || (age? (age != customerToBeUpdated.age): false)      
-  ) {
+    // || status || password || phoneNo || email || dob
+    if (
+      (name ? name != customerToBeUpdated.name : false) ||
+      (status ? status != customerToBeUpdated.status : false) ||
+      (password ? password != customerToBeUpdated.password : false) ||
+      (phoneNo ? phoneNo != customerToBeUpdated.phoneNo : false) ||
+      (email ? email != customerToBeUpdated.email : false) ||
+      (dob ? dob != customerToBeUpdated.dob : false)
+    ) {
       return res
         .status(403)
         .json({ message: "Not allowed to edit this field" });
     }
     var customer = new Customer();
-    console.log(customerToBeUpdated, "test sahana")
     customer = customerToBeUpdated;
     if (role) {
       customer.role = role;
@@ -306,7 +353,6 @@ const updateCustomer = async (req, res) => {
     if (branch) {
       customer.branch = branch;
     }
-    console.log(customer);
     const params = {
       TableName: process.env.CUSTOMERTABLENAME,
       Item: customer,
@@ -317,13 +363,16 @@ const updateCustomer = async (req, res) => {
       .json({ message: "Customer updated successfully", customer });
   } else if (req.customer.role == "member") {
     if (
-      req.body.id
-      || (activeSubscriptionId? (activeSubscriptionId != customerToBeUpdated.activeSubscriptionId): false)
-          || (role? (role != customerToBeUpdated.role): false ) 
-          || (upcomingSubscriptionId? (upcomingSubscriptionId != customerToBeUpdated.upcomingSubscriptionId): false)
-          || (status? (status != customerToBeUpdated.status): false)
-          || (email? (email != customerToBeUpdated.email): false)
-          || (branch? (branch != customerToBeUpdated.branch): false)  
+      (activeSubscriptionId
+        ? activeSubscriptionId != customerToBeUpdated.activeSubscriptionId
+        : false) ||
+      (role ? role != customerToBeUpdated.role : false) ||
+      (upcomingSubscriptionId
+        ? upcomingSubscriptionId != customerToBeUpdated.upcomingSubscriptionId
+        : false) ||
+      (status ? status != customerToBeUpdated.status : false) ||
+      (email ? email != customerToBeUpdated.email : false) ||
+      (branch ? branch != customerToBeUpdated.branch : false)
     ) {
       return res
         .status(403)
@@ -334,8 +383,8 @@ const updateCustomer = async (req, res) => {
     if (name) {
       customer.name = name;
     }
-    if (age) {
-      customer.age = age;
+    if (dob) {
+      customer.dob = dob;
     }
     if (password) {
       const salt = await bcrypt.genSalt(10);
@@ -352,7 +401,7 @@ const updateCustomer = async (req, res) => {
     const updatedCustomerData = await dynamoDB.put(params).promise();
     return res
       .status(200)
-      .json({ message: "User updated successfully", customer});
+      .json({ message: "User updated successfully", customer });
   }
 };
 
@@ -411,5 +460,5 @@ module.exports = {
   getCustomers,
   getCustomer,
   updateCustomer,
-  loginAsAdmin
+  loginAsAdmin,
 };
