@@ -107,7 +107,7 @@ const getCustomerActivityByMonth = async (req, res) => {
             }
         };
         let activities = []
-        try {
+        try {// batch processing is more efficent than querying for each item.
             const result = await dynamoDB.batchGet(getParams).promise();
             console.log(result.Responses, 'result')
             activities = result.Responses.customers;
@@ -121,23 +121,6 @@ const getCustomerActivityByMonth = async (req, res) => {
             console.log(error)
             return res.status(500).json({ message: "Internal Server Error", error });
         }
-        // for fetching the full record.
-        // for (let i = 0; i < ids.length; i++) {
-        //     let getParams = {
-        //         TableName: process.env.CUSTOMERTABLENAME,
-        //         Key: { id: ids[i] },
-        //     };
-        //     try {
-        //         const customerActivity = await dynamoDB.get(getParams).promise();
-        //         if (Object.keys(customerActivity).length == 0) {
-        //             return res.status(404).json({ message: `Activity ${id} not found` });
-        //         }
-        //         activities.push(customerActivity.Item)
-        //     } catch (error) {
-        //         return res.status(500).json({ message: "Internal Server Error" });
-        //     }
-        // }
-
         return res.status(200).json({
             message: "Activities fetched successfully",
             activities: activities
