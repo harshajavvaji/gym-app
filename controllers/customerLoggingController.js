@@ -96,12 +96,18 @@ const getCustomerActivityByMonth = async (req, res) => {
         };
 
         const data = await dynamoDB.query(params).promise();
+        if (data.Items.length == 0) {
+            return res.status(200).json({
+                message: "Activities fetched successfully",
+                activities: []
+            });
+        }
         const ids = data.Items.map(item => { return { "id": item.id } })
         console.log(ids, 'ids')
 
         let getParams = {
             RequestItems: {
-                customers: {
+                [process.env.CUSTOMERTABLENAME]: {
                     Keys: ids,
                 }
             }
