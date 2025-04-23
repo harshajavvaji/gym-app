@@ -55,9 +55,9 @@ class CustomerActivity {
     weight // optional, null if not provided
     resourceType // for identification in db.
     constructor(activities = [], inTime, outTime, date) {
-        this.inTime = inTime;
-        this.outTime = outTime;
-        this.date = date;
+        this.inTime = Number(inTime);
+        this.outTime = Number(outTime);
+        this.date = Number(date);
         this.activities = activities;  // Changed from activity:[Activity] to activities
         this.resourceType = 'activity' // for identification in db.
     }
