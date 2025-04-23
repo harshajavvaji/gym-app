@@ -126,7 +126,7 @@ const deleteCustomerActivity = async (req, res) => {
   }
 };
 
-const getCustomerActivityByMonth = async (req, res) => {
+const getCustomerActivityByTimeRange = async (req, res) => {
   const { startDate, endDate } = req.query;
   console.log("startDate", startDate);
   console.log("endDate", endDate);
@@ -249,6 +249,6 @@ module.exports = {
   addCustomerActivity,
   udpateCustomerActivity,
   deleteCustomerActivity,
-  getCustomerActivityByMonth,
+  getCustomerActivityByTimeRange,
   getCustomerActivityById,
 };
