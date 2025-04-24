@@ -14,7 +14,7 @@ AWS.config.update({
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
 const addCustomerActivity = async (req, res) => {
-  let { date, activities, inTime, outTime, weight } = req.body;
+  let { date, activities, inTime, outTime, weight, waterIntake, calorieIntake } = req.body;
   try {
     if (!date || !inTime || !outTime) {
       return res
@@ -30,6 +30,12 @@ const addCustomerActivity = async (req, res) => {
     const customerActivity = activities
       ? new CustomerActivity(activities, inTime, outTime, date)
       : new CustomerActivity(inTime, outTime, date);
+    if(waterIntake){
+      customerActivity.waterIntake = waterIntake
+    }
+    if(calorieIntake){
+      customerActivity.calorieIntake = calorieIntake
+    }
     customerActivity.id = uuidv4();
     customerActivity.customerId = req.customer.id;
     if (weight) {
