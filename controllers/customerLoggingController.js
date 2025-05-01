@@ -14,7 +14,7 @@ AWS.config.update({
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
 const addCustomerActivity = async (req, res) => {
-  let { date, activities, inTime, outTime, weight, waterIntake, calorieIntake } = req.body;
+  let { date, activities, inTime, outTime } = req.body;
   try {
     if (!date || !inTime || !outTime) {
       return res
@@ -30,17 +30,10 @@ const addCustomerActivity = async (req, res) => {
     const customerActivity = activities
       ? new CustomerActivity(activities, inTime, outTime, date)
       : new CustomerActivity(inTime, outTime, date);
-    if(waterIntake){
-      customerActivity.waterIntake = waterIntake
-    }
-    if(calorieIntake){
-      customerActivity.calorieIntake = calorieIntake
-    }
+    
     customerActivity.id = uuidv4();
     customerActivity.customerId = req.customer.id;
-    if (weight) {
-      customerActivity.weight = weight;
-    }
+
     const params = {
       TableName: process.env.CUSTOMERTABLENAME,
       Item: customerActivity,
@@ -71,7 +64,7 @@ const udpateCustomerActivity = async (req, res) => {
     console.log("Error", error);
     return res.status(500).json({ message: "Internal server error1" });
   }
-  const { activities, inTime, outTime, weight, date, resourceType } = req.body;
+  const { activities, inTime, outTime, date, resourceType } = req.body;
   if (req.customer.id !== customerActivityToBeUpdated.customerId) {
     return res
       .status(401)
@@ -88,15 +81,7 @@ const udpateCustomerActivity = async (req, res) => {
   if (outTime) {
     customerActivity.outTime = outTime;
   }
-  if (date) {
-    customerActivity.date = date;
-  }
-  if (weight) {
-    customerActivity.weight = weight;
-  }
-  if (resourceType) {
-    customerActivity.resourceType = resourceType;
-  }
+
   const params = {
     TableName: process.env.CUSTOMERTABLENAME,
     Item: customerActivity,
@@ -121,11 +106,21 @@ const deleteCustomerActivity = async (req, res) => {
       Key: { id },
     };
 
-    const customerActivity = await dynamoDB.delete(params).promise();
+    const customerActivity = await dynamoDB.get(params).promise();
     if (Object.keys(customerActivity).length == 0) {
-      return res.status(400).json({ message: `Activity {id} not found` });
+      return res.status(404).json({ message: `Activity ${id} not found` });
     }
-    return res.staus(200).json({ message: "Activity deleted succesfully" });
+    if (customerActivity.Item.customerId !== req.customer.id) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to access this activity" });
+    }
+    await dynamoDB.delete(params).promise();
+    return res.status(200).json({ message: `Activity deleted succesfully` });
+    // if (Object.keys(customerActivity).length == 0) {
+    //   return res.status(400).json({ message: `Activity {id} not found` });
+    // }
+    // return res.staus(200).json({ message: "Activity deleted succesfully" });
   } catch (error) {
     console.log("Error", error);
     return res.staus(500).json({ message: "Internal server error" });
