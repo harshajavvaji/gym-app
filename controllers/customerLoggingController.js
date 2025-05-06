@@ -128,7 +128,7 @@ const deleteCustomerActivity = async (req, res) => {
 };
 
 const getCustomerActivityByTimeRange = async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, custId } = req.query;
   console.log("startDate", startDate);
   console.log("endDate", endDate);
   if (!startDate || !endDate) {
@@ -136,7 +136,13 @@ const getCustomerActivityByTimeRange = async (req, res) => {
       .status(400)
       .json({ message: "Please provide startDate and endDate" });
   }
-
+  let customerId = ''
+  if (!custId) { // when not given in queryParams, then we take it from the token.
+    customerId = req.customer.id
+  }
+  else {
+    customerId = custId
+  }
   try {
     // Create Date objects for start and end of day
     const startDateTime = new Date(startDate);
@@ -170,7 +176,7 @@ const getCustomerActivityByTimeRange = async (req, res) => {
         ":resourceType": "activity",
         ":startDate": startTimestamp,
         ":endDate": endTimestamp,
-        ":customerId": req.customer.id, // customerId is a projected field in the gsi created.
+        ":customerId": customerId, // customerId is a projected field in the gsi created.
       },
     };
 
